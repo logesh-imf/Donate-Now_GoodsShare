@@ -12,13 +12,24 @@ class Loginhome extends StatefulWidget {
 }
 
 class _LoginhomeState extends State<Loginhome> {
-  bool bgColor = false;
-  double r = 1;
+  bool bgColor = false, img = false, form = false;
 
-  void bgColorTimer() {
-    Timer(Duration(seconds: 2), () {
+  void animationTimer() {
+    Timer(Duration(seconds: 1), () {
       setState(() {
         bgColor = true;
+      });
+    });
+
+    Timer(Duration(seconds: 2), () {
+      setState(() {
+        img = true;
+      });
+    });
+
+    Timer(Duration(milliseconds: 2200), () {
+      setState(() {
+        form = true;
       });
     });
   }
@@ -26,7 +37,7 @@ class _LoginhomeState extends State<Loginhome> {
   @override
   void initState() {
     super.initState();
-    bgColorTimer();
+    animationTimer();
   }
 
   @override
@@ -38,17 +49,33 @@ class _LoginhomeState extends State<Loginhome> {
             child: AnimatedContainer(
               height: bgColor ? 1000 : 0,
               width: bgColor ? 1000 : 0,
-              duration: Duration(seconds: 2),
+              duration: Duration(seconds: 1),
               color: Design.backgroundColor,
             ),
           ),
-          Center(
+          AnimatedPositioned(
             child: Image(
               image: AssetImage('images/donate_logo.png'),
-              height: 250,
-              width: 250,
             ),
+            top: img ? 30 : (MediaQuery.of(context).size.height / 2) - 75,
+            left: img
+                ? (MediaQuery.of(context).size.width / 2) - 40
+                : (MediaQuery.of(context).size.width / 2) - 75,
+            height: img ? 80 : 150,
+            width: img ? 80 : 150,
+            duration: Duration(milliseconds: 800),
           ),
+          AnimatedPositioned(
+            top: form ? 120 : MediaQuery.of(context).size.height / 2,
+            left: form ? 15 : MediaQuery.of(context).size.width / 2,
+            width: form ? MediaQuery.of(context).size.width - 30 : 0,
+            height: form ? MediaQuery.of(context).size.height - 130 : 0,
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15), color: Colors.white),
+            ),
+            duration: Duration(milliseconds: 600),
+          )
         ],
       ),
     );
