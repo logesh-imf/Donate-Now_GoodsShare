@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:donate_now/login/google_sign_in.dart';
@@ -16,6 +17,9 @@ Future main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     return MaterialApp(
       title: 'Donate Now',
       theme: ThemeData(
@@ -40,7 +44,7 @@ class Navigate extends StatelessWidget {
             final provider = Provider.of<GoogleSignInProvider>(context);
 
             if (provider.isSigningIn)
-              return buildLoading();
+              return buildLoading(context);
             else if (snapshot.hasData)
               return Homepage();
             else
@@ -51,10 +55,20 @@ class Navigate extends StatelessWidget {
     );
   }
 
-  Widget buildLoading() => Stack(
+  Widget buildLoading(context) => Stack(
         fit: StackFit.expand,
         children: [
-          // CustomPaint(painter: BackgroundPainter()),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Center(
+              child: Image(
+                image: AssetImage('images/donate_logo.png'),
+                height: 150,
+                width: 150,
+              ),
+            ),
+          ),
           Center(child: CircularProgressIndicator()),
         ],
       );

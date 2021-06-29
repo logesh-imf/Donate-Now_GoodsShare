@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:donate_now/login/google_sign_in.dart';
+import 'package:provider/provider.dart';
 
 class SignupPage extends StatefulWidget {
   // const SignupPage({ Key? key }) : super(key: key);
@@ -69,44 +71,6 @@ class _SignupPageState extends State<SignupPage> {
               SizedBox(
                 height: 10,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    height: 2,
-                    color: Colors.grey[300],
-                    width: (MediaQuery.of(context).size.width / 2) - 80,
-                  ),
-                  Text(
-                    'or',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  Container(
-                    height: 2,
-                    color: Colors.grey[300],
-                    width: (MediaQuery.of(context).size.width / 2) - 80,
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Column(
-                  children: [
-                    Text('Signup with Google'),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Image(
-                      image: AssetImage('images/Google_logo.png'),
-                      height: 30,
-                      width: 30,
-                    )
-                  ],
-                ),
-              )
             ],
           ),
         ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:donate_now/login/google_sign_in.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   // const LoginPage({Key? key}) : super(key: key);
@@ -66,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(fontSize: 16),
                   )),
               SizedBox(
-                height: 10,
+                height: 20,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -88,24 +90,27 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               SizedBox(
+                height: 20,
+              ),
+              Text(
+                'Login with Google (New user can use)',
+                style: TextStyle(color: Colors.blue),
+              ),
+              SizedBox(
                 height: 10,
               ),
               TextButton(
-                onPressed: () {},
-                child: Column(
-                  children: [
-                    Text('Login with Google'),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Image(
-                      image: AssetImage('images/Google_logo.png'),
-                      height: 30,
-                      width: 30,
-                    )
-                  ],
+                onPressed: () {
+                  final provider =
+                      Provider.of<GoogleSignInProvider>(context, listen: false);
+                  provider.login();
+                },
+                child: Image(
+                  image: AssetImage('images/Google_logo.png'),
+                  height: 30,
+                  width: 30,
                 ),
-              )
+              ),
             ],
           ),
         ),
