@@ -1,4 +1,11 @@
+import 'package:donate_now/login/email_pass_sign_in.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class Info {
+  String email, password;
+  Info({this.email, this.password});
+}
 
 class SignupPage extends StatefulWidget {
   // const SignupPage({ Key? key }) : super(key: key);
@@ -10,8 +17,11 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final _signupKey = GlobalKey<FormState>();
 
+  Info info = Info();
+
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<AuthServices>(context, listen: false);
     return Container(
       margin: EdgeInsets.all(2),
       padding: EdgeInsets.only(left: 10, right: 10),
@@ -26,15 +36,19 @@ class _SignupPageState extends State<SignupPage> {
             children: [
               TextFormField(
                 decoration: InputDecoration(
-                    icon: Icon(Icons.person_outline),
-                    // hintText: 'Enter your Email Id',
-                    labelText: 'Name'),
-              ),
-              TextFormField(
-                decoration: InputDecoration(
                     icon: Icon(Icons.mail_outline),
                     // hintText: 'Enter your Email Id',
                     labelText: 'Email'),
+                validator: (String email) {
+                  bool valid = RegExp(
+                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                      .hasMatch(email);
+                  if (!valid) return "Enter Valid Email id";
+                  return null;
+                },
+                onSaved: (String email) {
+                  info.email = email;
+                },
               ),
               TextFormField(
                 obscureText: true,
@@ -42,6 +56,17 @@ class _SignupPageState extends State<SignupPage> {
                     icon: Icon(Icons.password),
                     // hintText: 'Enter your Email Id',
                     labelText: 'Password'),
+                validator: (value) {
+                  print(value);
+                  if (value.length < 6)
+                    return 'Password Size should greater than 6';
+                  return null;
+                },
+                onSaved: (String pass) {
+                  setState(() {
+                    info.password = pass;
+                  });
+                },
               ),
               TextFormField(
                 obscureText: true,
@@ -49,23 +74,34 @@ class _SignupPageState extends State<SignupPage> {
                     icon: Icon(Icons.password),
                     // hintText: 'Enter your Email Id',
                     labelText: 'Conform Password'),
-              ),
-              TextFormField(
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                    icon: Icon(Icons.phone_android),
-                    // hintText: 'Enter your Email Id',
-                    labelText: 'Contact'),
+                validator: (value) {
+                  if (info.password != value) return 'Password Mismatch';
+                  return null;
+                },
               ),
               SizedBox(
                 height: 10,
               ),
-              ElevatedButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Sign up',
-                    style: TextStyle(fontSize: 16),
-                  )),
+              (provider.isSigningIn)
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: () async {
+                        _signupKey.currentState.save();
+                        if (_signupKey.currentState.validate()) {
+                          await provider.register(
+                              info.email, info.password, context);
+                          if (provider.errorMessage != 'success') {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(provider.errorMessage),
+                              duration: Duration(seconds: 2),
+                            ));
+                          }
+                        }
+                      },
+                      child: Text(
+                        'Sign up',
+                        style: TextStyle(fontSize: 16),
+                      )),
               SizedBox(
                 height: 10,
               ),

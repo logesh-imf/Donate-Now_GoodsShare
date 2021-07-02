@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:donate_now/login/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:donate_now/login/email_pass_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   // const LoginPage({Key? key}) : super(key: key);
@@ -9,13 +10,20 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
+class Info {
+  String email, password;
+  Info({this.email, this.password});
+}
+
 class _LoginPageState extends State<LoginPage> {
   final _loginKey = GlobalKey<FormState>();
 
-  bool remember = false;
+  Info info = Info();
 
   @override
   Widget build(BuildContext context) {
+    final googleProvider = Provider.of<GoogleSignInProvider>(context);
+    final authProvider = Provider.of<AuthServices>(context, listen: false);
     return Container(
       margin: EdgeInsets.all(2),
       padding: EdgeInsets.only(left: 10, right: 10),
@@ -33,6 +41,16 @@ class _LoginPageState extends State<LoginPage> {
                     icon: Icon(Icons.mail_outline),
                     // hintText: 'Enter your Email Id',
                     labelText: 'Email'),
+                validator: (String email) {
+                  bool valid = RegExp(
+                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                      .hasMatch(email);
+                  if (!valid) return "Enter Valid Email id";
+                  return null;
+                },
+                onSaved: (String value) {
+                  info.email = value;
+                },
               ),
               TextFormField(
                 obscureText: true,
@@ -40,6 +58,14 @@ class _LoginPageState extends State<LoginPage> {
                     icon: Icon(Icons.password),
                     // hintText: 'Enter your Email Id',
                     labelText: 'Password'),
+                onSaved: (String value) {
+                  info.password = value;
+                },
+                validator: (value) {
+                  if (value.length < 6)
+                    return 'Password Size should greater than 6';
+                  return null;
+                },
               ),
               Row(
                 children: [
@@ -52,21 +78,28 @@ class _LoginPageState extends State<LoginPage> {
                       ))
                 ],
               ),
-              CheckboxListTile(
-                  title: Text('Remember me'),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  value: this.remember,
-                  onChanged: (bool value) {
-                    setState(() {
-                      this.remember = value;
-                    });
-                  }),
-              ElevatedButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Login',
-                    style: TextStyle(fontSize: 16),
-                  )),
+              (authProvider.isSigningIn)
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: () async {
+                        if (_loginKey.currentState.validate()) {
+                          _loginKey.currentState.save();
+
+                          await authProvider.login(
+                              info.email, info.password, context);
+                          if (authProvider.errorMessage != 'success') {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(authProvider.errorMessage),
+                              duration: Duration(seconds: 2),
+                            ));
+                          }
+                        }
+                      },
+                      child: Text(
+                        'Login',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
               SizedBox(
                 height: 20,
               ),
@@ -105,11 +138,13 @@ class _LoginPageState extends State<LoginPage> {
                       Provider.of<GoogleSignInProvider>(context, listen: false);
                   provider.login();
                 },
-                child: Image(
-                  image: AssetImage('images/Google_logo.png'),
-                  height: 30,
-                  width: 30,
-                ),
+                child: (googleProvider.isSigningIn)
+                    ? CircularProgressIndicator()
+                    : (Image(
+                        image: AssetImage('images/Google_logo.png'),
+                        height: 30,
+                        width: 30,
+                      )),
               ),
             ],
           ),
