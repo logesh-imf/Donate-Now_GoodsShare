@@ -1,15 +1,23 @@
+import 'package:donate_now/firestore/User.dart';
 import 'package:flutter/material.dart';
 import 'package:donate_now/Design.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddUserDetails extends StatefulWidget {
-  // const AddUserDetails({ Key? key }) : super(key: key);
+  final Account acc;
+  const AddUserDetails({@required this.acc});
 
   @override
-  _AddUserDetailsState createState() => _AddUserDetailsState();
+  _AddUserDetailsState createState() => _AddUserDetailsState(acc);
 }
 
 class _AddUserDetailsState extends State<AddUserDetails> {
+  String name, mobile, address;
   final _formKey = GlobalKey<FormState>();
+  Account acc;
+  _AddUserDetailsState(this.acc);
+
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +40,29 @@ class _AddUserDetailsState extends State<AddUserDetails> {
               children: [
                 TextFormField(
                   decoration: DesignTextBox('Name', Icons.person),
+                  validator: (val) {
+                    if (val.isEmpty) return "Name should not be empty";
+                    return null;
+                  },
+                  onSaved: (String val) {
+                    name = val;
+                  },
                 ),
                 SizedBox(
                   height: 20,
                 ),
                 TextFormField(
                   decoration: DesignTextBox('Contact', Icons.phone),
+                  validator: (val) {
+                    if (val.isEmpty)
+                      return "Contach should not be empty";
+                    else if (val.length != 10)
+                      return 'Contact length should be 10 digits';
+                    return null;
+                  },
+                  onSaved: (String val) {
+                    mobile = val;
+                  },
                 ),
                 SizedBox(
                   height: 20,
@@ -46,7 +71,25 @@ class _AddUserDetailsState extends State<AddUserDetails> {
                   keyboardType: TextInputType.multiline,
                   maxLines: 5,
                   decoration: DesignTextBox('Address', Icons.home),
+                  validator: (val) {
+                    if (val.isEmpty) return "Address should not be empty";
+                    return null;
+                  },
+                  onSaved: (String val) {
+                    address = val;
+                  },
                 ),
+                (acc.isLoading)
+                    ? CircularProgressIndicator
+                    : ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            _formKey.currentState.save();
+                            await acc.update(name, user.email, mobile, address);
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Text('Add Details'))
               ],
             ),
           ),

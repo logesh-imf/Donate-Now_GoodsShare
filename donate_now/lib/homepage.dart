@@ -196,16 +196,15 @@ Drawer BuildDrawer(context, user) {
 addUser(email, context, Account acc) async {
   await acc.addUser(email);
   String msg;
-  if (acc.isNewUser)
+  if (await acc.isNewUser) {
     msg = 'New User Added';
-  else
+    while (await !acc.isdetailsReceived)
+      await Navigator.push(context,
+          MaterialPageRoute(builder: (context) => AddUserDetails(acc: acc)));
+  } else
     msg = 'Welcome, $email';
   await ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     content: Text(msg),
     duration: Duration(seconds: 3),
   ));
-
-  if (acc.isNewUser)
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => AddUserDetails()));
 }

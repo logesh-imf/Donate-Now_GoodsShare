@@ -1,16 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
-class Account {
-  String name, email, mobile, address;
-
-  Account({this.name, this.email, this.mobile, this.address});
-
-  String get userName => name;
-
+class Account with ChangeNotifier {
   bool _newUser = false;
   bool get isNewUser => _newUser;
 
-  Future<void> addUser(email) async {
+  bool _detailsReceiverd = false;
+  bool get isdetailsReceived => _detailsReceiverd;
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  Future<void> addUser(String email) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
     var docRef = await users.doc(email).get();
     if (docRef.exists) {
@@ -29,5 +30,41 @@ class Account {
           .then((value) => print('Inserted'))
           .onError((error, stackTrace) => print('Error in insert'));
     }
+  }
+
+  Future<void> update(name, email, mobile, address) async {
+    setLoading(true);
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+    users
+        .doc(email)
+        .update({'name': name, 'mobile': mobile, 'address': address})
+        .then((value) => print('Details Added'))
+        .catchError((onError) => print('Failed to add'));
+    setLoading(false);
+    _detailsReceiverd = true;
+  }
+
+  Future<void> checkDetails(email) async {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(email)
+        .get()
+        .then((DocumentSnapshot snapshot) {
+      if (snapshot.exists) {
+        if (snapshot['name'] != null &&
+            snapshot['email'] != null &&
+            snapshot['mobile'] != null &&
+            snapshot['address'] != null) {
+          _detailsReceiverd = true;
+          _newUser = false;
+        }
+      }
+    });
+  }
+
+  setLoading(val) {
+    _isLoading = val;
+    notifyListeners();
   }
 }

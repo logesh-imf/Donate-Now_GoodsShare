@@ -7,6 +7,7 @@ import 'package:donate_now/login/google_sign_in.dart';
 import 'package:donate_now/login/login_home.dart';
 import 'package:donate_now/homepage.dart';
 import 'package:donate_now/login/email_pass_sign_in.dart';
+import 'package:donate_now/firestore/User.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +42,8 @@ class Navigate extends StatelessWidget {
         ChangeNotifierProvider<GoogleSignInProvider>(
             create: (context) => GoogleSignInProvider()),
         ChangeNotifierProvider<AuthServices>(
-            create: (context) => AuthServices())
+            create: (context) => AuthServices()),
+        ChangeNotifierProvider<Account>(create: (create) => Account())
       ],
       child: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
