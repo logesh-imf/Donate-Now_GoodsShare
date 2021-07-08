@@ -5,9 +5,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:donate_now/Design.dart';
 import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
-import 'package:donate_now/firestore/User.dart';
+import 'package:donate_now/firestore/NewUser.dart';
 import 'package:donate_now/AddUserDetails.dart';
 import 'dart:async';
+import 'package:donate_now/class/user.dart';
 
 class Homepage extends StatefulWidget {
   // const Homepage({ Key? key }) : super(key: key);
@@ -18,13 +19,23 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   final user = FirebaseAuth.instance.currentUser;
-  Account acc = Account();
+
+  final NewUser newUser = NewUser();
+  bool isLoading = false;
+
+  void setLoad(bool val) {
+    setState(() {
+      isLoading = val;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 2), () {
-      addUser(user.email, context, acc);
+    setLoad(true);
+    Timer(Duration(seconds: 1), () async {
+      await addUser(user.email, context, newUser);
+      setLoad(false);
     });
   }
 
@@ -36,8 +47,29 @@ class _HomepageState extends State<Homepage> {
     });
   }
 
+  addUser(email, context, NewUser newUser) async {
+    await newUser.addUser(email);
+    String msg;
+    if (await newUser.isNewUser) {
+      msg = 'New User Added';
+      while (await !newUser.isdetailsReceived)
+        await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AddUserDetails(newUser: newUser)));
+    } else
+      msg = 'Welcome, $email';
+    await ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      duration: Duration(seconds: 5),
+    ));
+    final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
+    curUserProvider.getUser(email);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final curUserProvider = Provider.of<CurrentUser>(context);
     return Scaffold(
         appBar: AppBar(
           title: Text('Donate Now'),
@@ -147,64 +179,61 @@ class _HomepageState extends State<Homepage> {
           ],
         ),
         body: Stack(
-          children: [],
+          children: [
+            (isLoading)
+                ? Center(child: CircularProgressIndicator())
+                : Container()
+          ],
         ));
   }
-}
 
-Drawer BuildDrawer(context, user) {
-  return Drawer(
-    child: ListView(
-      children: [
-        // UserAccountsDrawerHeader(
-        //   currentAccountPicture: CircleAvatar(
-        //     backgroundImage: NetworkImage(user.photoURL),
-        //   ),
-        //   accountName: Text('${user.displayName}'),
-        //   accountEmail: Text('${user.email}'),
-        //   decoration: BoxDecoration(color: Design.backgroundColor),
-        // ),
-        ListTile(
-          leading: Icon(Icons.volunteer_activism),
-          title: Text('My Donations'),
-        ),
-        ListTile(
-          leading: Icon(Icons.favorite),
-          title: Text('My Requests'),
-        ),
-        ListTile(
-          leading: Icon(Icons.settings),
-          title: Text('Settings'),
-        ),
-        ListTile(
-          leading: Icon(Icons.logout_rounded),
-          title: Text('Logout'),
-          onTap: () {
-            final provider =
-                Provider.of<GoogleSignInProvider>(context, listen: false);
-            if (provider.isSigned)
-              provider.logout();
-            else
-              FirebaseAuth.instance.signOut();
-          },
-        )
-      ],
-    ),
-  );
-}
-
-addUser(email, context, Account acc) async {
-  await acc.addUser(email);
-  String msg;
-  if (await acc.isNewUser) {
-    msg = 'New User Added';
-    while (await !acc.isdetailsReceived)
-      await Navigator.push(context,
-          MaterialPageRoute(builder: (context) => AddUserDetails(acc: acc)));
-  } else
-    msg = 'Welcome, $email';
-  await ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(msg),
-    duration: Duration(seconds: 3),
-  ));
+  Drawer BuildDrawer(context, user) {
+    final curUserProvider = Provider.of<CurrentUser>(context);
+    return Drawer(
+      child: ListView(
+        children: [
+          UserAccountsDrawerHeader(
+            currentAccountPicture: (curUserProvider.imageURL != null)
+                ? CircleAvatar(
+                    backgroundImage: NetworkImage(curUserProvider.imageURL))
+                : CircleAvatar(
+                    backgroundColor: Colors.green,
+                    child: Text(
+                      curUserProvider.name[0].toString().toUpperCase(),
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+            accountName: Text(curUserProvider.name),
+            accountEmail: Text(curUserProvider.email),
+            decoration: BoxDecoration(color: Design.backgroundColor),
+          ),
+          ListTile(
+            leading: Icon(Icons.volunteer_activism),
+            title: Text('My Donations'),
+          ),
+          ListTile(
+            leading: Icon(Icons.favorite),
+            title: Text('My Requests'),
+          ),
+          ListTile(
+            leading: Icon(Icons.settings),
+            title: Text('Settings'),
+          ),
+          ListTile(
+            leading: Icon(Icons.logout_rounded),
+            title: Text('Logout'),
+            onTap: () {
+              final provider =
+                  Provider.of<GoogleSignInProvider>(context, listen: false);
+              if (provider.isSigned)
+                provider.logout();
+              else
+                FirebaseAuth.instance.signOut();
+            },
+          )
+        ],
+      ),
+    );
+  }
 }
