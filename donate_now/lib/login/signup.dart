@@ -1,6 +1,7 @@
 import 'package:donate_now/login/email_pass_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:donate_now/Design.dart';
 
 class Info {
   String email, password;
@@ -34,11 +35,12 @@ class _SignupPageState extends State<SignupPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(
+                height: 20,
+              ),
               TextFormField(
-                decoration: InputDecoration(
-                    icon: Icon(Icons.mail_outline),
-                    // hintText: 'Enter your Email Id',
-                    labelText: 'Email'),
+                decoration:
+                    DesignTextBox('Email', 'Enter Your Email', Icons.email),
                 validator: (String email) {
                   bool valid = RegExp(
                           r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -50,16 +52,17 @@ class _SignupPageState extends State<SignupPage> {
                   info.email = email;
                 },
               ),
+              SizedBox(
+                height: 20,
+              ),
               TextFormField(
                 obscureText: true,
-                decoration: InputDecoration(
-                    icon: Icon(Icons.password),
-                    // hintText: 'Enter your Email Id',
-                    labelText: 'Password'),
+                decoration:
+                    DesignTextBox('Password', 'Enter Password', Icons.password),
                 validator: (value) {
                   print(value);
                   if (value.length < 6)
-                    return 'Password Size should greater than 6';
+                    return 'Password size should greater than 6';
                   return null;
                 },
                 onSaved: (String pass) {
@@ -68,12 +71,13 @@ class _SignupPageState extends State<SignupPage> {
                   });
                 },
               ),
+              SizedBox(
+                height: 20,
+              ),
               TextFormField(
                 obscureText: true,
-                decoration: InputDecoration(
-                    icon: Icon(Icons.password),
-                    // hintText: 'Enter your Email Id',
-                    labelText: 'Conform Password'),
+                decoration: DesignTextBox(
+                    'Conform Password', 'Enter Password again', Icons.password),
                 validator: (value) {
                   if (info.password != value) return 'Password Mismatch';
                   return null;
@@ -111,4 +115,13 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
+}
+
+InputDecoration DesignTextBox(String label, String hint, IconData icon) {
+  return InputDecoration(
+      prefixIcon: Icon(icon),
+      hintText: hint,
+      labelText: label,
+      fillColor: Design.backgroundColor,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)));
 }

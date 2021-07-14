@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:donate_now/login/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:donate_now/login/email_pass_sign_in.dart';
+import 'package:donate_now/Design.dart';
 
 class LoginPage extends StatefulWidget {
   // const LoginPage({Key? key}) : super(key: key);
@@ -36,11 +37,12 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(
+                height: 20,
+              ),
               TextFormField(
-                decoration: InputDecoration(
-                    icon: Icon(Icons.mail_outline),
-                    // hintText: 'Enter your Email Id',
-                    labelText: 'Email'),
+                decoration:
+                    DesignTextBox('Email', 'Enter your Email', Icons.email),
                 validator: (String email) {
                   bool valid = RegExp(
                           r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -52,12 +54,13 @@ class _LoginPageState extends State<LoginPage> {
                   info.email = value;
                 },
               ),
+              SizedBox(
+                height: 20,
+              ),
               TextFormField(
                 obscureText: true,
-                decoration: InputDecoration(
-                    icon: Icon(Icons.password),
-                    // hintText: 'Enter your Email Id',
-                    labelText: 'Password'),
+                decoration: DesignTextBox(
+                    'Password', 'Enter your password', Icons.password),
                 onSaved: (String value) {
                   info.password = value;
                 },
@@ -66,6 +69,9 @@ class _LoginPageState extends State<LoginPage> {
                     return 'Password Size should greater than 6';
                   return null;
                 },
+              ),
+              SizedBox(
+                height: 20,
               ),
               Row(
                 children: [
@@ -152,4 +158,13 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+}
+
+InputDecoration DesignTextBox(String label, String hint, IconData icon) {
+  return InputDecoration(
+      prefixIcon: Icon(icon),
+      hintText: hint,
+      labelText: label,
+      fillColor: Design.backgroundColor,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)));
 }
