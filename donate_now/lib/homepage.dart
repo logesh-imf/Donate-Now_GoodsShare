@@ -10,7 +10,7 @@ import 'package:donate_now/AddUserDetails.dart';
 import 'dart:async';
 import 'package:donate_now/class/user.dart';
 import 'package:donate_now/donate_page.dart';
-
+import 'package:donate_now/makerequest.dart';
 class Homepage extends StatefulWidget {
   // const Homepage({ Key? key }) : super(key: key);
 
@@ -194,9 +194,7 @@ class _HomepageState extends State<Homepage> {
                 : (currentIndex == 1)
                     ? DonatePage()
                     : (currentIndex == 2)
-                        ? Container(
-                            color: Colors.green,
-                          )
+                        ? Makerequest()
                         : Container(
                             color: Colors.blue,
                           ),
