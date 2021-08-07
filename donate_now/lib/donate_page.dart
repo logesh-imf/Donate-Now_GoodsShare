@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:donate_now/firestore/AddItem.dart';
 import 'package:flutter/material.dart';
 import 'package:donate_now/Design.dart';
@@ -19,11 +21,27 @@ class DonatePage extends StatefulWidget {
 class _DonatePageState extends State<DonatePage> {
   final _formkey = GlobalKey<FormState>();
   List<Asset> images = <Asset>[];
+  List<dynamic> snap;
+  List category = [];
   bool donated = false;
 
   @override
   void initState() {
     super.initState();
+    FirebaseFirestore.instance
+        .collection('category')
+        .doc('categoryType')
+        .get()
+        .then((value) {
+      snap = List.from(value['type']);
+
+      setState(() {
+        for (var item in snap) {
+          category.add({'name': item['name'], 'value': item['name']});
+        }
+      });
+    });
+
     final donateProvider = Provider.of<DonateItem>(context, listen: false);
     donateProvider.images.clear();
   }
@@ -128,6 +146,31 @@ class _DonatePageState extends State<DonatePage> {
                         onSaved: (val) {
                           donateProvider.name = val;
                         },
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      DropDownFormField(
+                        titleText: 'Category',
+                        hintText: 'Please select the category',
+                        value: donateProvider.category,
+                        onChanged: (val) {
+                          setState(() {
+                            donateProvider.category = val;
+                          });
+                        },
+                        onSaved: (val) {
+                          setState(() {
+                            donateProvider.category = val;
+                          });
+                        },
+                        validator: (val) {
+                          if (val == null) return 'Please select the category';
+                          return null;
+                        },
+                        dataSource: (category.length > 0) ? category : [],
+                        textField: 'name',
+                        valueField: 'value',
                       ),
                       SizedBox(
                         height: 15,

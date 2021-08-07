@@ -21,24 +21,31 @@ class NewUser extends ChangeNotifier {
 
   Future<void> addUser(String email) async {
     setLoading(true);
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
-    var docRef = await users.doc(email).get();
-    if (docRef.exists) {
-      _newUser = false;
-    } else {
-      _newUser = true;
-      users
-          .doc(email)
-          .set({
-            'image': null,
-            'name': null,
-            'email': email,
-            'mobile': null,
-            'address': null
-          })
-          .then((value) => print('Added'))
-          .onError((error, stackTrace) => print('Error in insert'));
+
+    try {
+      CollectionReference users =
+          FirebaseFirestore.instance.collection('users');
+      var docRef = await users.doc(email).get();
+      if (docRef.exists) {
+        _newUser = false;
+      } else {
+        _newUser = true;
+        users
+            .doc(email)
+            .set({
+              'image': null,
+              'name': null,
+              'email': email,
+              'mobile': null,
+              'address': null
+            })
+            .then((value) => print('Added'))
+            .onError((error, stackTrace) => print('Error in insert'));
+      }
+    } catch (e) {
+      print(e.toString());
     }
+
     setLoading(false);
   }
 

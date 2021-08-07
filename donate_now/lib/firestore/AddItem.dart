@@ -25,7 +25,7 @@ String generateId() {
 }
 
 class DonateItem extends ChangeNotifier {
-  String name, description;
+  String name, description, category;
   List<File> images = [];
   String errorMSG = "";
 
@@ -71,6 +71,7 @@ class DonateItem extends ChangeNotifier {
           .set({
             'email': email,
             'name': name,
+            'category': category,
             'description': description,
             'images': FieldValue.arrayUnion(urls)
           })
