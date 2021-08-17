@@ -9,6 +9,7 @@ import 'package:donate_now/firestore/NewUser.dart';
 import 'package:donate_now/AddUserDetails.dart';
 import 'dart:async';
 import 'package:donate_now/class/user.dart';
+import 'package:donate_now/donate_page.dart';
 
 class Homepage extends StatefulWidget {
   // const Homepage({ Key? key }) : super(key: key);
@@ -19,8 +20,8 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   final user = FirebaseAuth.instance.currentUser;
-
   final NewUser newUser = NewUser();
+
   bool isLoading = false;
 
   void setLoad(bool val) {
@@ -57,8 +58,11 @@ class _HomepageState extends State<Homepage> {
             context,
             MaterialPageRoute(
                 builder: (context) => AddUserDetails(newUser: newUser)));
-    } else
-      msg = 'Welcome, $email';
+    } else {
+      final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
+      await curUserProvider.getUser(email);
+      msg = 'Welcome, ${curUserProvider.name}';
+    }
     await ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
       duration: Duration(seconds: 5),
@@ -69,7 +73,6 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    final curUserProvider = Provider.of<CurrentUser>(context);
     return Scaffold(
         appBar: AppBar(
           title: Text('Donate Now'),
@@ -182,7 +185,20 @@ class _HomepageState extends State<Homepage> {
           children: [
             (isLoading)
                 ? Center(child: CircularProgressIndicator())
-                : Container()
+                : Container(),
+            (currentIndex == 0)
+                ? Container(
+                    color: Colors.yellow,
+                  )
+                : (currentIndex == 1)
+                    ? DonatePage()
+                    : (currentIndex == 2)
+                        ? Container(
+                            color: Colors.green,
+                          )
+                        : Container(
+                            color: Colors.blue,
+                          ),
           ],
         ));
   }
