@@ -73,7 +73,6 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
           title: Text('Donate Now'),
