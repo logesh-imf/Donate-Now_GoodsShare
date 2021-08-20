@@ -10,6 +10,7 @@ import 'package:donate_now/AddUserDetails.dart';
 import 'dart:async';
 import 'package:donate_now/class/user.dart';
 import 'package:donate_now/donate_page.dart';
+import 'package:donate_now/pages/feed.dart';
 
 class Homepage extends StatefulWidget {
   // const Homepage({ Key? key }) : super(key: key);
@@ -187,9 +188,7 @@ class _HomepageState extends State<Homepage> {
                 ? Center(child: CircularProgressIndicator())
                 : Container(),
             (currentIndex == 0)
-                ? Container(
-                    color: Colors.yellow,
-                  )
+                ? Feed()
                 : (currentIndex == 1)
                     ? DonatePage()
                     : (currentIndex == 2)
