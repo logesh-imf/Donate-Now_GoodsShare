@@ -26,7 +26,8 @@ String generateId() {
 }
 
 class DonateItem extends ChangeNotifier {
-  String name, description, category, address;
+  String name, description, category, address, city, state;
+  double latitude, longitude;
 
   List<File> images = [];
   String errorMSG = "";
@@ -77,6 +78,10 @@ class DonateItem extends ChangeNotifier {
             'name': name,
             'category': category,
             'description': description,
+            'latitude': latitude,
+            'longitude': longitude,
+            'city': city,
+            'state': state,
             'images': FieldValue.arrayUnion(urls)
           })
           .then((value) => print('Added'))

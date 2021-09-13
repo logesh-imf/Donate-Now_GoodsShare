@@ -26,7 +26,6 @@ class _DonatePageState extends State<DonatePage> {
   String currentAddress = "";
   bool geoLoc = false, getLocation = false;
 
-  double latitude, longitude;
   Position currentPosition;
 
   List<Asset> images = <Asset>[];
@@ -209,13 +208,18 @@ class _DonatePageState extends State<DonatePage> {
                               setState(() {
                                 geoLoc = true;
                               });
+                              final donateProvider = Provider.of<DonateItem>(
+                                  context,
+                                  listen: false);
                               await Geolocator.getCurrentPosition(
                                       desiredAccuracy: LocationAccuracy.best,
                                       forceAndroidLocationManager: true)
                                   .then((value) {
                                 currentPosition = value;
-                                latitude = currentPosition.latitude;
-                                longitude = currentPosition.longitude;
+                                donateProvider.latitude =
+                                    currentPosition.latitude;
+                                donateProvider.longitude =
+                                    currentPosition.longitude;
                               }).catchError((e) {
                                 print(e.toString());
                               });
@@ -226,13 +230,19 @@ class _DonatePageState extends State<DonatePage> {
 
                               List<Placemark> placemarks =
                                   await placemarkFromCoordinates(
-                                      latitude, longitude);
+                                      donateProvider.latitude,
+                                      donateProvider.longitude);
 
                               Placemark place = placemarks[0];
 
                               setState(() {
                                 currentAddress =
                                     "${place.name} , ${place.street}\n${place.subAdministrativeArea},\n${place.administrativeArea},\n${place.country} - ${place.postalCode}.";
+                                donateProvider.address = currentAddress;
+
+                                donateProvider.city =
+                                    place.subAdministrativeArea;
+                                donateProvider.state = place.administrativeArea;
                               });
                             },
                             child: Row(
@@ -395,31 +405,42 @@ class _DonatePageState extends State<DonatePage> {
                           child: (getLocation)
                               ? GoogleMap(
                                   initialCameraPosition: CameraPosition(
-                                      target: LatLng(latitude, longitude),
+                                      target: LatLng(donateProvider.latitude,
+                                          donateProvider.longitude),
                                       zoom: 15),
                                   mapType: MapType.hybrid,
                                   markers: Set<Marker>.of(<Marker>[
                                     Marker(
                                         draggable: true,
                                         markerId: MarkerId("My Location"),
-                                        position: LatLng(latitude, longitude))
+                                        position: LatLng(
+                                            donateProvider.latitude,
+                                            donateProvider.longitude))
                                   ]),
                                   onCameraMove: (position) async {
                                     setState(() async {
-                                      latitude = await position.target.latitude;
-                                      longitude =
+                                      donateProvider.latitude =
+                                          await position.target.latitude;
+                                      donateProvider.longitude =
                                           await position.target.longitude;
                                     });
 
                                     List<Placemark> placemarks =
                                         await placemarkFromCoordinates(
-                                            latitude, longitude);
+                                            donateProvider.latitude,
+                                            donateProvider.longitude);
 
                                     Placemark place = placemarks[0];
 
                                     setState(() {
                                       currentAddress =
                                           "${place.name} , ${place.street}\n${place.subAdministrativeArea},\n${place.administrativeArea},\n${place.country} - ${place.postalCode}.";
+                                      donateProvider.address = currentAddress;
+
+                                      donateProvider.city =
+                                          place.subAdministrativeArea;
+                                      donateProvider.state =
+                                          place.administrativeArea;
                                     });
                                   },
                                 )
