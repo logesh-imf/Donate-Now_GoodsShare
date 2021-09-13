@@ -9,6 +9,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:donate_now/class/user.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:io';
 
 class DonatePage extends StatefulWidget {
@@ -20,6 +23,12 @@ class DonatePage extends StatefulWidget {
 
 class _DonatePageState extends State<DonatePage> {
   final _formkey = GlobalKey<FormState>();
+  String currentAddress = "";
+  bool geoLoc = false, getLocation = false;
+
+  double latitude, longitude;
+  Position currentPosition;
+
   List<Asset> images = <Asset>[];
   List<dynamic> snap;
   List category = [];
@@ -109,161 +118,211 @@ class _DonatePageState extends State<DonatePage> {
             )
           : Stack(children: [
               SingleChildScrollView(
-                  child: Container(
-                padding: EdgeInsets.only(left: 10, right: 10),
-                child: Form(
-                  key: _formkey,
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Container(
-                          child: Image(
-                            image: AssetImage(
-                              'images/donate1.png',
-                            ),
-                            height: 120,
-                            width: 120,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 40,
-                        child: Center(
-                          child: Text(
-                            'Enter Item Details',
-                            style: LabelDesing(),
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        decoration: DesignTextBox(
-                            'Name', 'Enter the name of the item', Icons.redeem),
-                        validator: (val) {
-                          if (val.length == 0)
-                            return 'Name should not be empty';
-                          return null;
-                        },
-                        onSaved: (val) {
-                          donateProvider.name = val;
-                        },
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      DropDownFormField(
-                        titleText: 'Category',
-                        hintText: 'Please select the category',
-                        value: donateProvider.category,
-                        onChanged: (val) {
-                          setState(() {
-                            donateProvider.category = val;
-                          });
-                        },
-                        onSaved: (val) {
-                          setState(() {
-                            donateProvider.category = val;
-                          });
-                        },
-                        validator: (val) {
-                          if (val == null) return 'Please select the category';
-                          return null;
-                        },
-                        dataSource: (category.length > 0) ? category : [],
-                        textField: 'name',
-                        valueField: 'value',
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      TextFormField(
-                        keyboardType: TextInputType.multiline,
-                        maxLines: 5,
-                        decoration: DesignTextBox(
-                            'Descirtion',
-                            'Enter Description of the Item ',
-                            Icons.thirty_fps_select),
-                        validator: (val) {
-                          if (val.length == 0)
-                            return 'Description should not be empty';
-                          return null;
-                        },
-                        onSaved: (val) {
-                          donateProvider.description = val;
-                        },
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      (images.length == 0)
-                          ? Container(
-                              height: 150,
-                              color: Colors.grey[200],
-                              width: MediaQuery.of(context).size.width,
-                              child: Center(
-                                child: Column(children: [
-                                  Spacer(),
-                                  Text('Add Images'),
-                                  IconButton(
-                                    icon: Icon(Icons.add_a_photo),
-                                    onPressed: () {
-                                      showOption(context);
-                                    },
-                                  ),
-                                  Spacer()
-                                ]),
-                              ))
-                          : Column(children: [
-                              Row(
-                                children: [
-                                  Spacer(),
-                                  TextButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          images.clear();
-                                          donateProvider.images.clear();
-                                        });
-                                      },
-                                      child: Text(
-                                        'Clear Images',
-                                        style: TextStyle(
-                                            fontSize: 12, color: Colors.red),
-                                      ))
-                                ],
+                child: Container(
+                  padding: EdgeInsets.only(left: 10, right: 10),
+                  child: Form(
+                    key: _formkey,
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Container(
+                            child: Image(
+                              image: AssetImage(
+                                'images/donate1.png',
                               ),
-                              imageSlider(),
-                            ]),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      (donateProvider.load)
-                          ? Container()
-                          : ElevatedButton(
-                              onPressed: () async {
-                                final curUserProvider =
-                                    Provider.of<CurrentUser>(context,
-                                        listen: false);
-                                if (_formkey.currentState.validate()) {
-                                  _formkey.currentState.save();
-                                  if (donateProvider.images.length > 0) {
-                                    await donateProvider
-                                        .addItem(curUserProvider.email);
-                                    setState(() {
-                                      donated = true;
-                                    });
-                                  } else {
-                                    snackBar(
-                                        context, 'Select Atleast one image');
+                              height: 120,
+                              width: 120,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: 40,
+                          child: Center(
+                            child: Text(
+                              'Enter Item Details',
+                              style: LabelDesing(),
+                            ),
+                          ),
+                        ),
+                        TextFormField(
+                          decoration: DesignTextBox('Name',
+                              'Enter the name of the item', Icons.redeem),
+                          validator: (val) {
+                            if (val.length == 0)
+                              return 'Name should not be empty';
+                            return null;
+                          },
+                          onSaved: (val) {
+                            donateProvider.name = val;
+                          },
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        DropDownFormField(
+                          titleText: 'Category',
+                          hintText: 'Please select the category',
+                          value: donateProvider.category,
+                          onChanged: (val) {
+                            setState(() {
+                              donateProvider.category = val;
+                            });
+                          },
+                          onSaved: (val) {
+                            setState(() {
+                              donateProvider.category = val;
+                            });
+                          },
+                          validator: (val) {
+                            if (val == null)
+                              return 'Please select the category';
+                            return null;
+                          },
+                          dataSource: (category.length > 0) ? category : [],
+                          textField: 'name',
+                          valueField: 'value',
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        TextFormField(
+                          keyboardType: TextInputType.multiline,
+                          maxLines: 5,
+                          decoration: DesignTextBox(
+                              'Descirtion',
+                              'Enter Description of the Item ',
+                              Icons.thirty_fps_select),
+                          validator: (val) {
+                            if (val.length == 0)
+                              return 'Description should not be empty';
+                            return null;
+                          },
+                          onSaved: (val) {
+                            donateProvider.description = val;
+                          },
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        TextButton(
+                            onPressed: () async {
+                              setState(() {
+                                geoLoc = true;
+                              });
+                              await Geolocator.getCurrentPosition(
+                                      desiredAccuracy: LocationAccuracy.best,
+                                      forceAndroidLocationManager: true)
+                                  .then((value) {
+                                currentPosition = value;
+                                latitude = currentPosition.latitude;
+                                longitude = currentPosition.longitude;
+                              }).catchError((e) {
+                                print(e.toString());
+                              });
+
+                              setState(() {
+                                getLocation = true;
+                              });
+
+                              List<Placemark> placemarks =
+                                  await placemarkFromCoordinates(
+                                      latitude, longitude);
+
+                              Placemark place = placemarks[0];
+
+                              setState(() {
+                                currentAddress =
+                                    "${place.name} , ${place.street}\n${place.subAdministrativeArea},\n${place.administrativeArea},\n${place.country} - ${place.postalCode}.";
+                              });
+                            },
+                            child: Row(
+                              children: [
+                                Image(
+                                    height: 30,
+                                    image: AssetImage('images/location.gif')),
+                                Text(
+                                  'Add location',
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              ],
+                            )),
+                        (currentAddress != "")
+                            ? Text(currentAddress)
+                            : Container(),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        (images.length == 0)
+                            ? Container(
+                                height: 150,
+                                color: Colors.grey[200],
+                                width: MediaQuery.of(context).size.width,
+                                child: Center(
+                                  child: Column(children: [
+                                    Spacer(),
+                                    Text('Add Images'),
+                                    IconButton(
+                                      icon: Icon(Icons.add_a_photo),
+                                      onPressed: () {
+                                        showOption(context);
+                                      },
+                                    ),
+                                    Spacer()
+                                  ]),
+                                ))
+                            : Column(children: [
+                                Row(
+                                  children: [
+                                    Spacer(),
+                                    TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            images.clear();
+                                            donateProvider.images.clear();
+                                          });
+                                        },
+                                        child: Text(
+                                          'Clear Images',
+                                          style: TextStyle(
+                                              fontSize: 12, color: Colors.red),
+                                        ))
+                                  ],
+                                ),
+                                imageSlider(),
+                              ]),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        (donateProvider.load)
+                            ? Container()
+                            : ElevatedButton(
+                                onPressed: () async {
+                                  final curUserProvider =
+                                      Provider.of<CurrentUser>(context,
+                                          listen: false);
+                                  if (_formkey.currentState.validate()) {
+                                    _formkey.currentState.save();
+                                    if (donateProvider.images.length > 0) {
+                                      await donateProvider
+                                          .addItem(curUserProvider.email);
+                                      setState(() {
+                                        donated = true;
+                                      });
+                                    } else {
+                                      snackBar(
+                                          context, 'Select Atleast one image');
+                                    }
                                   }
-                                }
-                              },
-                              child: Text('Donate')),
-                      SizedBox(
-                        height: 15,
-                      ),
-                    ],
+                                },
+                                child: Text('Donate')),
+                        SizedBox(
+                          height: 15,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              )),
+              ),
               (donateProvider.isLoading)
                   ? Opacity(
                       opacity: 0.5,
@@ -279,6 +338,98 @@ class _DonatePageState extends State<DonatePage> {
                           ),
                         ),
                       ))
+                  : Container(),
+              (geoLoc)
+                  ? Stack(children: [
+                      Row(children: [
+                        Expanded(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+                        )
+                      ]),
+                    ])
+                  : Container(),
+              (geoLoc)
+                  ? Container(
+                      margin: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                      ),
+                      child: Column(children: [
+                        Row(children: [
+                          Container(
+                            padding: EdgeInsets.all(15),
+                            color: Design.backgroundColor,
+                            height: 50,
+                            width: (geoLoc)
+                                ? MediaQuery.of(context).size.width - 20
+                                : 0,
+                            child: (geoLoc)
+                                ? Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                        Text(
+                                          'Select Location',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                geoLoc = false;
+                                              });
+                                            },
+                                            child: Text('Done'))
+                                      ])
+                                : Container(),
+                          ),
+                        ]),
+                        Container(
+                          height: 380,
+                          child: (getLocation)
+                              ? GoogleMap(
+                                  initialCameraPosition: CameraPosition(
+                                      target: LatLng(latitude, longitude),
+                                      zoom: 15),
+                                  mapType: MapType.hybrid,
+                                  markers: Set<Marker>.of(<Marker>[
+                                    Marker(
+                                        draggable: true,
+                                        markerId: MarkerId("My Location"),
+                                        position: LatLng(latitude, longitude))
+                                  ]),
+                                  onCameraMove: (position) async {
+                                    setState(() async {
+                                      latitude = await position.target.latitude;
+                                      longitude =
+                                          await position.target.longitude;
+                                    });
+
+                                    List<Placemark> placemarks =
+                                        await placemarkFromCoordinates(
+                                            latitude, longitude);
+
+                                    Placemark place = placemarks[0];
+
+                                    setState(() {
+                                      currentAddress =
+                                          "${place.name} , ${place.street}\n${place.subAdministrativeArea},\n${place.administrativeArea},\n${place.country} - ${place.postalCode}.";
+                                    });
+                                  },
+                                )
+                              : Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                        ),
+                        Text(currentAddress)
+                      ]),
+                    )
                   : Container()
             ]),
     );

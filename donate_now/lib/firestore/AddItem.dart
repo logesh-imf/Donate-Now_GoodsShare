@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
@@ -25,9 +26,12 @@ String generateId() {
 }
 
 class DonateItem extends ChangeNotifier {
-  String name, description, category;
+  String name, description, category, address;
+
   List<File> images = [];
   String errorMSG = "";
+
+  Position postion;
 
   bool load = false;
   bool get isLoading => load;

@@ -15,10 +15,11 @@ class _FeedState extends State<Feed> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          feed_template(width),
-          feed_template(width),
-          feed_template(width),
-          feed_template(width)
+          feed_template(width, "Dress", "Dress", "Coimbatore"),
+          feed_template(width, "Dress", "Dress", "Coimbatore"),
+          feed_template(width, "Dress", "Dress", "Coimbatore"),
+          feed_template(width, "Dress", "Dress", "Coimbatore"),
+          feed_template(width, "Dress", "Dress", "Coimbatore"),
         ],
       ),
     );
