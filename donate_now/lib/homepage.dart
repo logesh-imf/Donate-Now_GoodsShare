@@ -11,6 +11,7 @@ import 'dart:async';
 import 'package:donate_now/class/user.dart';
 import 'package:donate_now/donate_page.dart';
 import 'package:donate_now/pages/feed.dart';
+import 'package:donate_now/firestore/Chat_History.dart';
 
 class Homepage extends StatefulWidget {
   // const Homepage({ Key? key }) : super(key: key);
@@ -69,6 +70,8 @@ class _HomepageState extends State<Homepage> {
       duration: Duration(seconds: 5),
     ));
     final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
+    final chat_provider = Provider.of<Chat_Histroy>(context, listen: false);
+    chat_provider.setUser(user.email, " ");
     curUserProvider.getUser(email);
   }
 
@@ -202,7 +205,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   Drawer BuildDrawer(context, user) {
-    final curUserProvider = Provider.of<CurrentUser>(context);
+    final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
     return Drawer(
       child: ListView(
         children: [

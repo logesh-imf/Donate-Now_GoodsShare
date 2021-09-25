@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:donate_now/firestore/Chat_History.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:donate_now/Design.dart';
@@ -25,6 +27,15 @@ Container feed_template(dynamic element, dynamic context) {
         ),
       ),
     );
+  }
+
+  Scaffold ChatPage() {
+    final chat_provider = Provider.of<Chat_Histroy>(context, listen: false);
+
+    return Scaffold(
+        appBar: AppBar(
+            backgroundColor: Design.backgroundColor,
+            title: Text(chat_provider.receiverName)));
   }
 
   Scaffold ViewItem() {
@@ -184,10 +195,19 @@ Container feed_template(dynamic element, dynamic context) {
                                       Provider.of<CurrentUser>(context,
                                           listen: false);
 
-                                  Chat_Histroy chat_history = Chat_Histroy(
+                                  final chat_provider =
+                                      Provider.of<Chat_Histroy>(context,
+                                          listen: false);
+
+                                  chat_provider.setUser(
                                       curUserProvider.email, element['email']);
 
-                                  chat_history.prepareChat();
+                                  await chat_provider.prepareChat(context);
+
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ChatPage()));
                                 },
                                 child: Row(
                                   children: [

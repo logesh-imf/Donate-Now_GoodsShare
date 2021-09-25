@@ -49,6 +49,8 @@ class Navigate extends StatelessWidget {
         ChangeNotifierProvider<NewUser>(create: (context) => NewUser()),
         ChangeNotifierProvider<CurrentUser>(create: (context) => CurrentUser()),
         ChangeNotifierProvider<DonateItem>(create: (context) => DonateItem()),
+        ChangeNotifierProvider<Chat_Histroy>(
+            create: (context) => Chat_Histroy()),
       ],
       child: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
