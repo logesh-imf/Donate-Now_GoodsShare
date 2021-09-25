@@ -1,9 +1,13 @@
+import 'package:donate_now/firestore/Chat_History.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:donate_now/Design.dart';
+import 'package:provider/provider.dart';
+import 'package:donate_now/class/user.dart';
 
 Container feed_template(dynamic element, dynamic context) {
   List<String> images = [];
+
   for (dynamic item in element['images']) {
     images.add(item['url']);
   }
@@ -175,7 +179,16 @@ Container feed_template(dynamic element, dynamic context) {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             TextButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  final curUserProvider =
+                                      Provider.of<CurrentUser>(context,
+                                          listen: false);
+
+                                  Chat_Histroy chat_history = Chat_Histroy(
+                                      curUserProvider.email, element['email']);
+
+                                  chat_history.prepareChat();
+                                },
                                 child: Row(
                                   children: [
                                     Icon(Icons.chat_bubble),

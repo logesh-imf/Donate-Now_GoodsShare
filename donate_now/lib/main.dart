@@ -10,6 +10,7 @@ import 'package:donate_now/login/email_pass_sign_in.dart';
 import 'package:donate_now/firestore/NewUser.dart';
 import 'package:donate_now/class/user.dart';
 import 'package:donate_now/firestore/AddItem.dart';
+import 'package:donate_now/firestore/Chat_History.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,7 +48,7 @@ class Navigate extends StatelessWidget {
             create: (context) => AuthServices()),
         ChangeNotifierProvider<NewUser>(create: (context) => NewUser()),
         ChangeNotifierProvider<CurrentUser>(create: (context) => CurrentUser()),
-        ChangeNotifierProvider<DonateItem>(create: (context) => DonateItem())
+        ChangeNotifierProvider<DonateItem>(create: (context) => DonateItem()),
       ],
       child: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
