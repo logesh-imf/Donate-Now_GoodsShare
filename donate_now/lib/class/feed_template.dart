@@ -1,15 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
+import 'package:donate_now/Design.dart';
 
-Container feed_template(
-    double width, String name, String category, String location) {
-  List images = <String>[
-    'https://firebasestorage.googleapis.com/v0/b/donatenow-20ecb.appspot.com/o/items%2FP2AITKkF01clRqPSdSr%2Fimage1?alt=media&token=b2ac9cb9-5d0b-4296-aeb3-5a60727743d6',
-    'https://firebasestorage.googleapis.com/v0/b/donatenow-20ecb.appspot.com/o/items%2FP2AITKkF01clRqPSdSr%2Fimage2?alt=media&token=a864b66b-1e9b-4373-a394-3f77529da08f',
-    'https://firebasestorage.googleapis.com/v0/b/donatenow-20ecb.appspot.com/o/items%2FB0TvFMGGIRiTWlUJeU%2Fimage1?alt=media&token=845a6199-fef1-4ab5-ad7c-7fe14aaf41a4'
-  ];
+Container feed_template(dynamic element, dynamic context) {
+  List<String> images = [];
+  for (dynamic item in element['images']) {
+    images.add(item['url']);
+  }
+
+  Scaffold ViewItem() {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(element['name']),
+        backgroundColor: Design.backgroundColor,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Container(
+        padding: EdgeInsets.all(10),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                height: 300,
+                color: Colors.grey[300],
+                child: Carousel(
+                  images:
+                      images.map((e) => Image(image: NetworkImage(e))).toList(),
+                  autoplay: false,
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Container(
+                width: 500,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Category',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Text(element['category'])
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Container(
+                width: 500,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Description',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Text(element['description'])
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Container(
+                width: 500,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Location',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Text(" ${element['city']}  - ${element['state']}")
+                        ],
+                      ),
+                      TextButton(
+                          onPressed: () {},
+                          child: Column(
+                            children: [
+                              Text('View Direction'),
+                              Image(
+                                image: AssetImage('images/map.png'),
+                                height: 50,
+                                width: 50,
+                              ),
+                            ],
+                          ))
+                    ]),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   return Container(
-      width: width,
+      width: 500,
       child: Container(
         margin: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
         decoration: BoxDecoration(
@@ -18,7 +136,7 @@ Container feed_template(
             BoxShadow(color: Colors.grey[500], spreadRadius: 3, blurRadius: 5)
           ],
         ),
-        width: width,
+        width: 500,
         height: 400,
         // color: Colors.cyan,
         child: Column(
@@ -32,47 +150,55 @@ Container feed_template(
                 autoplay: false,
               ),
             ),
-            Container(
-              height: 100,
-              padding: EdgeInsets.only(left: 13),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(name,
-                      style: TextStyle(
-                        fontSize: 17,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.bold,
-                      )),
-                  // SizedBox(height: 7),
-                  Row(
+            TextButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ViewItem()));
+              },
+              child: Container(
+                child: Container(
+                  height: 80,
+                  padding: EdgeInsets.only(left: 13),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text('Category - ',
+                      Text(element['name'],
                           style: TextStyle(
+                            fontSize: 17,
                             color: Colors.grey[700],
                             fontWeight: FontWeight.bold,
                           )),
-                      Text(category),
+                      // SizedBox(height: 7),
+                      Row(
+                        children: [
+                          Text('Category - ',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.bold,
+                              )),
+                          Text(element['category']),
+                        ],
+                      ),
+                      // SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_rounded,
+                            color: Colors.red[300],
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            element['city'],
+                            style: TextStyle(color: Colors.red[300]),
+                          )
+                        ],
+                      ),
                     ],
                   ),
-                  // SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on_rounded,
-                        color: Colors.red[300],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        location,
-                        style: TextStyle(color: Colors.red[300]),
-                      )
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ],
