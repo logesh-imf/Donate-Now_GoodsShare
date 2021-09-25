@@ -1,6 +1,8 @@
+import 'package:donate_now/class/user.dart';
 import 'package:flutter/material.dart';
 import 'package:donate_now/class/feed_template.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
 class Feed extends StatefulWidget {
   // const Feed({ Key? key }) : super(key: key);
@@ -20,7 +22,12 @@ class _FeedState extends State<Feed> {
 
   Future getFeeds() async {
     try {
-      await FirebaseFirestore.instance.collection('items').get().then((value) {
+      final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
+      await FirebaseFirestore.instance
+          .collection('items')
+          .where('email', isNotEqualTo: curUserProvider.email)
+          .get()
+          .then((value) {
         value.docs.forEach((element) {
           setState(() {
             feeds.add(feed_template(element, context));

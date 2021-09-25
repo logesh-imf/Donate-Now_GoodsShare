@@ -186,18 +186,17 @@ class _HomepageState extends State<Homepage> {
           children: [
             (isLoading)
                 ? Center(child: CircularProgressIndicator())
-                : Container(),
-            (currentIndex == 0)
-                ? Feed()
-                : (currentIndex == 1)
-                    ? DonatePage()
-                    : (currentIndex == 2)
-                        ? Container(
-                            color: Colors.green,
-                          )
-                        : Container(
-                            color: Colors.blue,
-                          ),
+                : (currentIndex == 0)
+                    ? Feed()
+                    : (currentIndex == 1)
+                        ? DonatePage()
+                        : (currentIndex == 2)
+                            ? Container(
+                                color: Colors.green,
+                              )
+                            : Container(
+                                color: Colors.blue,
+                              ),
           ],
         ));
   }

@@ -8,6 +8,21 @@ Container feed_template(dynamic element, dynamic context) {
     images.add(item['url']);
   }
 
+  Scaffold ViewDirection() {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Design.backgroundColor,
+        title: Text('Direction'),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back),
+        ),
+      ),
+    );
+  }
+
   Scaffold ViewItem() {
     return Scaffold(
       appBar: AppBar(
@@ -106,19 +121,87 @@ Container feed_template(dynamic element, dynamic context) {
                         ],
                       ),
                       TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ViewDirection()));
+                          },
                           child: Column(
                             children: [
                               Text('View Direction'),
                               Image(
                                 image: AssetImage('images/map.png'),
-                                height: 50,
-                                width: 50,
+                                height: 30,
+                                width: 30,
                               ),
                             ],
                           ))
                     ]),
               ),
+              SizedBox(
+                height: 8,
+              ),
+              Container(
+                width: 500,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Contact',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width - 100,
+                        height: 50,
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.grey[500],
+                                  spreadRadius: 3,
+                                  blurRadius: 5)
+                            ],
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextButton(
+                                onPressed: () {},
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.chat_bubble),
+                                    SizedBox(width: 5),
+                                    Text('Chat'),
+                                  ],
+                                )),
+                            TextButton(
+                                onPressed: () {},
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.call),
+                                    SizedBox(width: 5),
+                                    Text('Call'),
+                                  ],
+                                )),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 7,
+              )
             ],
           ),
         ),
