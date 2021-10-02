@@ -1,14 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:donate_now/firestore/Chat_History.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:donate_now/Design.dart';
 import 'package:provider/provider.dart';
 import 'package:donate_now/class/user.dart';
+import 'package:donate_now/pages/chat_page.dart';
 
 Container feed_template(dynamic element, dynamic context) {
   List<String> images = [];
+  String Dname = "";
+
+  FirebaseFirestore.instance
+      .collection('users')
+      .doc(element['email'])
+      .get()
+      .then((value) {
+    Dname = value.get('name');
+  });
 
   for (dynamic item in element['images']) {
     images.add(item['url']);
@@ -29,14 +38,14 @@ Container feed_template(dynamic element, dynamic context) {
     );
   }
 
-  Scaffold ChatPage() {
-    final chat_provider = Provider.of<Chat_Histroy>(context, listen: false);
-
-    return Scaffold(
-        appBar: AppBar(
-            backgroundColor: Design.backgroundColor,
-            title: Text(chat_provider.receiverName)));
-  }
+  // Scaffold ChatPage() {
+  //   final chat_provider = Provider.of<Chat_Histroy>(context, listen: false);
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //         backgroundColor: Design.backgroundColor,
+  //         title: Text(chat_provider.receiverName)),
+  //   );
+  // }
 
   Scaffold ViewItem() {
     return Scaffold(
@@ -84,6 +93,29 @@ Container feed_template(dynamic element, dynamic context) {
                       height: 4,
                     ),
                     Text(element['category'])
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Container(
+                width: 500,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Donater Name',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Text(Dname)
                   ],
                 ),
               ),
@@ -199,15 +231,15 @@ Container feed_template(dynamic element, dynamic context) {
                                       Provider.of<Chat_Histroy>(context,
                                           listen: false);
 
-                                  chat_provider.setUser(
+                                  await chat_provider.setUser(
                                       curUserProvider.email, element['email']);
 
                                   await chat_provider.prepareChat(context);
 
-                                  Navigator.push(
+                                  await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => ChatPage()));
+                                          builder: (con) => ChatPage(context)));
                                 },
                                 child: Row(
                                   children: [

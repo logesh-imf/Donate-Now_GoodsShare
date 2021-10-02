@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
-import 'package:donate_now/pages/chat_page.dart';
 
 String generateId() {
   String id = "";
@@ -28,6 +27,8 @@ class Chat_Histroy extends ChangeNotifier {
   String current_chat_id = "";
   String curUserName, receiverName;
 
+  String senderImage = " ", receiverImage = " ";
+
   // Chat_Histroy(String id1, String id2) {
   //   curUser = id1;
   //   receiver = id2;
@@ -43,6 +44,22 @@ class Chat_Histroy extends ChangeNotifier {
     var ref;
 
     String user1 = curUser, user2 = receiver;
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(curUser)
+        .get()
+        .then((value) {
+      senderImage = value['image'];
+    });
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(receiver)
+        .get()
+        .then((value) {
+      receiverImage = value['image'];
+    });
 
     try {
       CollectionReference chat_history =
@@ -64,6 +81,20 @@ class Chat_Histroy extends ChangeNotifier {
       if (ref.size == 0) {
         String chat_id = generateId();
 
+        var msg = {
+          'sender_id': " ",
+          "content": "Say Hii",
+          "time": Timestamp.now()
+        };
+
+        List initMsg = [];
+        initMsg.add(msg);
+
+        await FirebaseFirestore.instance
+            .collection('messages')
+            .doc(chat_id)
+            .set({"chats": FieldValue.arrayUnion(initMsg)});
+
         var field = {
           'user1': user1,
           'user2': user2,
@@ -71,10 +102,11 @@ class Chat_Histroy extends ChangeNotifier {
           'latest_time': DateTime.now()
         };
 
-        chat_history.doc(chat_id).set(field);
-        setChatId(chat_id);
+        await chat_history.doc(chat_id).set(field);
+
+        await setChatId(chat_id);
       } else {
-        chat_history
+        await chat_history
             .doc(ref.docs.elementAt(0)['chat_id'])
             .update({"latest_time": DateTime.now()});
 
@@ -94,7 +126,7 @@ class Chat_Histroy extends ChangeNotifier {
           receiverName = value.docs.elementAt(0)['name'];
         });
 
-        setChatId(ref.docs.elementAt(0)['chat_id']);
+        await setChatId(ref.docs.elementAt(0)['chat_id']);
       }
     } catch (e) {}
   }
