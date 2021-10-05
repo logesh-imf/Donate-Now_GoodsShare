@@ -38,15 +38,6 @@ Container feed_template(dynamic element, dynamic context) {
     );
   }
 
-  // Scaffold ChatPage() {
-  //   final chat_provider = Provider.of<Chat_Histroy>(context, listen: false);
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //         backgroundColor: Design.backgroundColor,
-  //         title: Text(chat_provider.receiverName)),
-  //   );
-  // }
-
   Scaffold ViewItem() {
     final chat_provider = Provider.of<Chat_Histroy>(context, listen: false);
     return Scaffold(
@@ -195,14 +186,6 @@ Container feed_template(dynamic element, dynamic context) {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Contact',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.teal,
-                        fontSize: 16,
-                      ),
-                    ),
                     SizedBox(
                       height: 12,
                     ),

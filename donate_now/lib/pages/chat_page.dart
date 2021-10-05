@@ -6,6 +6,7 @@ import 'package:donate_now/Design.dart';
 import 'package:intl/intl.dart';
 
 Container messageLayout(String message, bool sender, Timestamp time) {
+  if (message == "Say Hii") sender = true;
   return Container(
       child: Row(
     mainAxisAlignment:
@@ -44,9 +45,20 @@ getMessages(AsyncSnapshot<DocumentSnapshot> snap, Chat_Histroy chat_provider) {
 
   // content_list.add(Text('Sample'));
 
-  for (dynamic chat in snap.data.get('chats')) {
-    content_list.add(messageLayout(chat['content'],
-        chat_provider.curUser == chat['sender_id'], chat['time']));
+  dynamic chats = snap.data.get('chats');
+
+  if (chats.length > 1) {
+    for (dynamic chat in chats) {
+      if (chat['content'] == "Say Hii") {
+      } else
+        content_list.add(messageLayout(chat['content'],
+            chat_provider.curUser == chat['sender_id'], chat['time']));
+    }
+  } else {
+    for (dynamic chat in chats) {
+      content_list.add(messageLayout(chat['content'],
+          chat_provider.curUser == chat['sender_id'], chat['time']));
+    }
   }
   return content_list;
 }

@@ -12,35 +12,64 @@ class Feed extends StatefulWidget {
 }
 
 class _FeedState extends State<Feed> {
+  bool load = false;
   List<Container> feeds = [];
 
-  @override
-  void initState() {
-    super.initState();
-    getFeeds();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   getFeeds();
+  // }
 
-  Future getFeeds() async {
+  Future getFeedsFromCloud() async {
+    final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
+
     try {
-      final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
       await FirebaseFirestore.instance
           .collection('items')
           .where('email', isNotEqualTo: curUserProvider.email)
           .get()
           .then((value) {
+        setState(() {
+          load = false;
+        });
+        feeds.clear();
         value.docs.forEach((element) {
           setState(() {
             feeds.add(feed_template(element, context));
           });
         });
+        setState(() {
+          load = false;
+        });
       });
-    } catch (e) {}
+    } catch (e) {
+      print("Exception is ${e.toString()}");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     // double width = MediaQuery.of(context).size.width;
-    return SingleChildScrollView(
-        child: Column(children: (feeds.length == 0) ? [] : feeds));
+    final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('items')
+            .where('email', isNotEqualTo: curUserProvider.email)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            getFeedsFromCloud();
+            return (load)
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : SingleChildScrollView(
+                    child: Column(
+                    children: feeds,
+                  ));
+          } else
+            return Text("Data is not available");
+        });
   }
 }
