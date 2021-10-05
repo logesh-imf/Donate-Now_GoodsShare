@@ -10,6 +10,10 @@ import 'package:donate_now/AddUserDetails.dart';
 import 'dart:async';
 import 'package:donate_now/class/user.dart';
 import 'package:donate_now/donate_page.dart';
+import 'package:donate_now/pages/feed.dart';
+import 'package:donate_now/firestore/Chat_History.dart';
+import 'package:donate_now/pages/chat_list.dart';
+import 'package:donate_now/firestore/chatslistFirestore.dart';
 
 class Homepage extends StatefulWidget {
   // const Homepage({ Key? key }) : super(key: key);
@@ -60,7 +64,12 @@ class _HomepageState extends State<Homepage> {
                 builder: (context) => AddUserDetails(newUser: newUser)));
     } else {
       final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
+      final chatlist_firestore =
+          Provider.of<chatsListFirestore>(context, listen: false);
+
       await curUserProvider.getUser(email);
+      await chatlist_firestore.getChats(email, context);
+
       msg = 'Welcome, ${curUserProvider.name}';
     }
     await ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -68,11 +77,22 @@ class _HomepageState extends State<Homepage> {
       duration: Duration(seconds: 5),
     ));
     final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
-    curUserProvider.getUser(email);
+    final chatlist_firestore =
+        Provider.of<chatsListFirestore>(context, listen: false);
+    await chatlist_firestore.clearData();
+    await chatlist_firestore.getChats(curUserProvider.email, context);
+    // final chat_provider = Provider.of<Chat_Histroy>(context, listen: false);
+    // chat_provider.setUser(user.email, " ");
+    await curUserProvider.getUser(email);
   }
 
   @override
   Widget build(BuildContext context) {
+    final chatlist_firestore =
+        Provider.of<chatsListFirestore>(context, listen: false);
+
+    final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Donate Now'),
@@ -87,7 +107,14 @@ class _HomepageState extends State<Homepage> {
           ),
           actions: [
             IconButton(
-                onPressed: () {}, icon: FaIcon(FontAwesomeIcons.paperPlane))
+                onPressed: () async {
+                  await chatlist_firestore.getChats(
+                      curUserProvider.email, context);
+
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (con) => ChatList(context)));
+                },
+                icon: FaIcon(FontAwesomeIcons.paperPlane))
           ],
         ),
         drawer: BuildDrawer(context, user),
@@ -185,26 +212,23 @@ class _HomepageState extends State<Homepage> {
           children: [
             (isLoading)
                 ? Center(child: CircularProgressIndicator())
-                : Container(),
-            (currentIndex == 0)
-                ? Container(
-                    color: Colors.yellow,
-                  )
-                : (currentIndex == 1)
-                    ? DonatePage()
-                    : (currentIndex == 2)
-                        ? Container(
-                            color: Colors.green,
-                          )
-                        : Container(
-                            color: Colors.blue,
-                          ),
+                : (currentIndex == 0)
+                    ? Feed()
+                    : (currentIndex == 1)
+                        ? DonatePage()
+                        : (currentIndex == 2)
+                            ? Container(
+                                color: Colors.green,
+                              )
+                            : Container(
+                                color: Colors.blue,
+                              ),
           ],
         ));
   }
 
   Drawer BuildDrawer(context, user) {
-    final curUserProvider = Provider.of<CurrentUser>(context);
+    final curUserProvider = Provider.of<CurrentUser>(context, listen: false);
     return Drawer(
       child: ListView(
         children: [
@@ -239,13 +263,18 @@ class _HomepageState extends State<Homepage> {
           ListTile(
             leading: Icon(Icons.logout_rounded),
             title: Text('Logout'),
-            onTap: () {
+            onTap: () async {
+              final chatlist_firestore =
+                  Provider.of<chatsListFirestore>(context, listen: false);
+
+              await chatlist_firestore.clearData();
+
               final provider =
                   Provider.of<GoogleSignInProvider>(context, listen: false);
               if (provider.isSigned)
-                provider.logout();
+                await provider.logout();
               else
-                FirebaseAuth.instance.signOut();
+                await FirebaseAuth.instance.signOut();
             },
           )
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
@@ -25,9 +26,13 @@ String generateId() {
 }
 
 class DonateItem extends ChangeNotifier {
-  String name, description, category;
+  String name, description, category, address, city, state;
+  double latitude, longitude;
+
   List<File> images = [];
   String errorMSG = "";
+
+  Position postion;
 
   bool load = false;
   bool get isLoading => load;
@@ -73,6 +78,10 @@ class DonateItem extends ChangeNotifier {
             'name': name,
             'category': category,
             'description': description,
+            'latitude': latitude,
+            'longitude': longitude,
+            'city': city,
+            'state': state,
             'images': FieldValue.arrayUnion(urls)
           })
           .then((value) => print('Added'))
