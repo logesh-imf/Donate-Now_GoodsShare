@@ -29,6 +29,9 @@ class Chat_Histroy extends ChangeNotifier {
 
   String senderImage = " ", receiverImage = " ";
 
+  bool _load = false;
+  bool get isLoading => _load;
+
   // Chat_Histroy(String id1, String id2) {
   //   curUser = id1;
   //   receiver = id2;
@@ -41,6 +44,7 @@ class Chat_Histroy extends ChangeNotifier {
   }
 
   Future prepareChat(context) async {
+    setLoad(true);
     var ref;
 
     String user1 = curUser, user2 = receiver;
@@ -81,11 +85,7 @@ class Chat_Histroy extends ChangeNotifier {
       if (ref.size == 0) {
         String chat_id = generateId();
 
-        var msg = {
-          'sender_id': " ",
-          "content": "Say Hii",
-          "time": Timestamp.now()
-        };
+        var msg = {'sender_id': " ", "content": "Say Hii", "time": " "};
 
         List initMsg = [];
         initMsg.add(msg);
@@ -129,10 +129,16 @@ class Chat_Histroy extends ChangeNotifier {
         await setChatId(ref.docs.elementAt(0)['chat_id']);
       }
     } catch (e) {}
+    setLoad(false);
   }
 
   void setChatId(String id) {
     current_chat_id = id;
+    notifyListeners();
+  }
+
+  void setLoad(val) {
+    _load = val;
     notifyListeners();
   }
 }

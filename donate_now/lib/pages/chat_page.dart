@@ -20,7 +20,7 @@ Container messageLayout(String message, bool sender, Timestamp time) {
         padding: EdgeInsets.all(10),
         child: Column(children: [
           Text(
-            DateFormat('MM/dd/yyyy - hh:mm a')
+            DateFormat('dd/MM/yyyy - hh:mm a')
                 .format(
                     DateTime.fromMillisecondsSinceEpoch(time.seconds * 1000))
                 .toString(),
@@ -118,7 +118,7 @@ Scaffold ChatPage(context) {
                         },
                         decoration: InputDecoration(
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20))),
+                                borderRadius: BorderRadius.circular(30))),
                       )),
                       IconButton(
                           onPressed: () async {

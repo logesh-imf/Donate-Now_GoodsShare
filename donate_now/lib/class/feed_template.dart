@@ -48,6 +48,7 @@ Container feed_template(dynamic element, dynamic context) {
   // }
 
   Scaffold ViewItem() {
+    final chat_provider = Provider.of<Chat_Histroy>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: Text(element['name']),
@@ -223,12 +224,12 @@ Container feed_template(dynamic element, dynamic context) {
                           children: [
                             TextButton(
                                 onPressed: () async {
-                                  final curUserProvider =
-                                      Provider.of<CurrentUser>(context,
-                                          listen: false);
-
                                   final chat_provider =
                                       Provider.of<Chat_Histroy>(context,
+                                          listen: false);
+
+                                  final curUserProvider =
+                                      Provider.of<CurrentUser>(context,
                                           listen: false);
 
                                   await chat_provider.setUser(
@@ -241,13 +242,15 @@ Container feed_template(dynamic element, dynamic context) {
                                       MaterialPageRoute(
                                           builder: (con) => ChatPage(context)));
                                 },
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.chat_bubble),
-                                    SizedBox(width: 5),
-                                    Text('Chat'),
-                                  ],
-                                )),
+                                child: (chat_provider.isLoading)
+                                    ? CircularProgressIndicator()
+                                    : Row(
+                                        children: [
+                                          Icon(Icons.chat_bubble),
+                                          SizedBox(width: 5),
+                                          Text('Chat'),
+                                        ],
+                                      )),
                             TextButton(
                                 onPressed: () {},
                                 child: Row(
