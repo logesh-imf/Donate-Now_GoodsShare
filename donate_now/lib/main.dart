@@ -12,6 +12,7 @@ import 'package:donate_now/class/user.dart';
 import 'package:donate_now/firestore/AddItem.dart';
 import 'package:donate_now/firestore/Chat_History.dart';
 import 'package:donate_now/firestore/chatslistFirestore.dart';
+import 'package:donate_now/firestore/request.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,7 +54,8 @@ class Navigate extends StatelessWidget {
         ChangeNotifierProvider<Chat_Histroy>(
             create: (context) => Chat_Histroy()),
         ChangeNotifierProvider<chatsListFirestore>(
-            create: (context) => chatsListFirestore())
+            create: (context) => chatsListFirestore()),
+        ChangeNotifierProvider<Request>(create: (context) => Request())
       ],
       child: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),

@@ -11,10 +11,9 @@ import 'dart:async';
 import 'package:donate_now/class/user.dart';
 import 'package:donate_now/donate_page.dart';
 import 'package:donate_now/pages/feed.dart';
-import 'package:donate_now/firestore/Chat_History.dart';
 import 'package:donate_now/pages/chat_list.dart';
 import 'package:donate_now/firestore/chatslistFirestore.dart';
-import 'package:donate_now/makerequest.dart';
+import 'package:donate_now/pages/makerequest.dart';
 
 class Homepage extends StatefulWidget {
   // const Homepage({ Key? key }) : super(key: key);
