@@ -10,11 +10,15 @@ import 'package:donate_now/AddUserDetails.dart';
 import 'dart:async';
 import 'package:donate_now/class/user.dart';
 import 'package:donate_now/donate_page.dart';
+<<<<<<< HEAD
 import 'package:donate_now/pages/feed.dart';
 import 'package:donate_now/firestore/Chat_History.dart';
 import 'package:donate_now/pages/chat_list.dart';
 import 'package:donate_now/firestore/chatslistFirestore.dart';
 
+=======
+import 'package:donate_now/makerequest.dart';
+>>>>>>> makerequest
 class Homepage extends StatefulWidget {
   // const Homepage({ Key? key }) : super(key: key);
 
@@ -212,6 +216,7 @@ class _HomepageState extends State<Homepage> {
           children: [
             (isLoading)
                 ? Center(child: CircularProgressIndicator())
+<<<<<<< HEAD
                 : (currentIndex == 0)
                     ? Feed()
                     : (currentIndex == 1)
@@ -223,6 +228,20 @@ class _HomepageState extends State<Homepage> {
                             : Container(
                                 color: Colors.blue,
                               ),
+=======
+                : Container(),
+            (currentIndex == 0)
+                ? Container(
+                    color: Colors.yellow,
+                  )
+                : (currentIndex == 1)
+                    ? DonatePage()
+                    : (currentIndex == 2)
+                        ? Makerequest()
+                        : Container(
+                            color: Colors.blue,
+                          ),
+>>>>>>> makerequest
           ],
         ));
   }
