@@ -6,19 +6,32 @@ import 'package:donate_now/Design.dart';
 import 'package:provider/provider.dart';
 import 'package:donate_now/class/user.dart';
 import 'package:donate_now/pages/chat_page.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+
+class Donar {
+  String name, mobile;
+
+  Future getNameMobile(String email) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(email)
+          .get()
+          .then((value) {
+        name = value.get('name');
+        mobile = value.get('mobile');
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+}
 
 Container feed_template(dynamic element, dynamic context) {
   List<String> images = [];
-  String Dname = "";
+  Donar donar = new Donar();
 
-  FirebaseFirestore.instance
-      .collection('users')
-      .doc(element['email'])
-      .get()
-      .then((value) {
-    Dname = value.get('name');
-  });
-
+  donar.getNameMobile(element['email']);
   for (dynamic item in element['images']) {
     images.add(item['url']);
   }
@@ -107,7 +120,7 @@ Container feed_template(dynamic element, dynamic context) {
                     SizedBox(
                       height: 4,
                     ),
-                    Text(Dname)
+                    Text(donar.name)
                   ],
                 ),
               ),
@@ -235,7 +248,14 @@ Container feed_template(dynamic element, dynamic context) {
                                         ],
                                       )),
                             TextButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  try {
+                                    await FlutterPhoneDirectCaller.directCall(
+                                        donar.mobile);
+                                  } catch (e) {
+                                    print(e.toString());
+                                  }
+                                },
                                 child: Row(
                                   children: [
                                     Icon(Icons.call),
