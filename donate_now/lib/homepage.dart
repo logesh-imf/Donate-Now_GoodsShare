@@ -14,6 +14,7 @@ import 'package:donate_now/pages/feed.dart';
 import 'package:donate_now/pages/chat_list.dart';
 import 'package:donate_now/firestore/chatslistFirestore.dart';
 import 'package:donate_now/pages/makerequest.dart';
+import 'package:donate_now/pages/request.dart';
 
 class Homepage extends StatefulWidget {
   // const Homepage({ Key? key }) : super(key: key);
@@ -218,9 +219,7 @@ class _HomepageState extends State<Homepage> {
                         ? DonatePage()
                         : (currentIndex == 2)
                             ? Makerequest()
-                            : Container(
-                                color: Colors.blue,
-                              ),
+                            : Request(),
           ],
         ));
   }

@@ -128,28 +128,24 @@ class _MakerequestState extends State<Makerequest> {
                                 geoLoc = true;
                               });
 
-                              await Geolocator.getCurrentPosition(
-                                      desiredAccuracy: LocationAccuracy.best,
-                                      forceAndroidLocationManager: true)
-                                  .then((value) {
-                                currentPosition = value;
-                                info.latitude = currentPosition.latitude;
-                                info.longitude = currentPosition.longitude;
-                              }).catchError((e) {
-                                print(e.toString());
-                              });
+                              setState(() async {
+                                await Geolocator.getCurrentPosition(
+                                        desiredAccuracy: LocationAccuracy.best,
+                                        forceAndroidLocationManager: true)
+                                    .then((value) {
+                                  currentPosition = value;
+                                  info.latitude = currentPosition.latitude;
+                                  info.longitude = currentPosition.longitude;
+                                }).catchError((e) {
+                                  print(e.toString());
+                                });
 
-                              setState(() {
-                                getLocation = true;
-                              });
+                                List<Placemark> placemarks =
+                                    await placemarkFromCoordinates(
+                                        info.latitude, info.longitude);
 
-                              List<Placemark> placemarks =
-                                  await placemarkFromCoordinates(
-                                      info.latitude, info.longitude);
+                                Placemark place = placemarks[0];
 
-                              Placemark place = placemarks[0];
-
-                              setState(() {
                                 currentAddress =
                                     "${place.name} , ${place.street}\n${place.subAdministrativeArea},\n${place.administrativeArea},\n${place.country} - ${place.postalCode}.";
 

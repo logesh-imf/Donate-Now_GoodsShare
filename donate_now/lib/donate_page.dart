@@ -118,7 +118,17 @@ class _DonatePageState extends State<DonatePage> {
           : Stack(children: [
               SingleChildScrollView(
                 child: Container(
-                  padding: EdgeInsets.only(left: 10, right: 10),
+                  margin: EdgeInsets.all(10),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.grey[500],
+                            spreadRadius: 3,
+                            blurRadius: 5)
+                      ],
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white),
                   child: Form(
                     key: _formkey,
                     child: Column(
